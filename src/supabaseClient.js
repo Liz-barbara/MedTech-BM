@@ -1,7 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-// Substitua pelas suas credenciais que ficam no painel do Supabase (Project Settings > API)
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'SUA_URL_DO_SUPABASE';
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || 'SUA_CHAVE_ANONIMA_DO_SUPABASE';
+// Lê a variável do Vite ou usa string vazia como fallback de segurança
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)

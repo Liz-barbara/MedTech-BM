@@ -167,22 +167,20 @@ export default function App() {
       if (data) {
         const mapeados = data.map(a => ({
           id: a.id,
-          cidadao: a.nome_paciente || a.cidadao,
-          cpf: a.cidadao_cpf || a.cpf,
-          cartaoSus: a.cartao_sus || '700000000000000',
-          telefone: a.telefone || '',
-          email: a.email || '',
+          cidadao: loggedUserData?.nome || 'Cidadão',
+          cpf: loggedUserData?.cpf || '',
+          cartaoSus: loggedUserData?.cartaoSus || '',
           tipo: a.tipo || 'Consulta',
-          especialidade: a.exame_especialidade || a.especialidade,
-          posto: a.posto_id ? UNIDADES_SAUDE[0] : (a.posto || UNIDADES_SAUDE[0]),
-          data: a.data,
-          horario: a.hora || a.horario || '08:00',
+          especialidade: a.especialidade,
+          posto: UNIDADES_SAUDE[0],
+          data: a.data_agendamento,
+          horario: a.horario || '08:00',
           status: a.status || 'Pendente',
           motivoRecusado: a.motivo_recusado || '',
           confirmacaoCidadao: a.confirmacao_cidadao || 'pendente',
-          justificativaDesistencia: '',
+          justificativaDesistencia: a.justificativa_desistencia || '',
           situacaoAtendimento: a.situacao_atendimento || 'pendente',
-          motivoNaoConcluido: '',
+          motivoNaoConcluido: a.motivo_nao_concluido || '',
           gradeId: a.grade_id || 1
         }));
         setAgendamentos(mapeados);

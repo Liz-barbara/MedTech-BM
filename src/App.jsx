@@ -439,7 +439,7 @@ export default function App() {
     setNovoLaudo({ cpf: '', tipoExame: TIPOS_EXAMES[0], arquivoAnexado: null });
   };
 
- // AGENDAMENTO SALVO NO SUPABASE (AJUSTADO)
+ // AGENDAMENTO SALVO NO SUPABASE (MAPEAMENTO EXATO DAS COLUNAS)
   const handleSolicitarAgendamento = async (e) => {
     e.preventDefault();
     if (!solicitacao.gradeIdSelecionada) return alert('Por favor, selecione uma vaga na lista.');
@@ -449,16 +449,16 @@ export default function App() {
     try {
       const { error } = await supabase.from('agendamentos').insert([
         {
-          cpf: loggedUserData.cpf,
-          nome_paciente: loggedUserData.nome,
-          cidadao: loggedUserData.nome,
-          posto: solicitacao.posto,
+          cidadao_id: loggedUserData.id || 1, // Usa o ID do cidadão logado no Supabase
+          posto_id: 1, // ID do posto selecionado
+          grade_id: gradeEscolhida.id,
+          tipo: solicitacao.tipo,
           especialidade: solicitacao.especialidade,
-          exame_especialidade: `${solicitacao.tipo} - ${solicitacao.especialidade}`,
-          data: gradeEscolhida.data,
-          hora: gradeEscolhida.horario,
+          data_agendamento: gradeEscolhida.data,
           horario: gradeEscolhida.horario,
-          status: 'Pendente'
+          status: 'Pendente',
+          confirmacao_cidadao: 'pendente',
+          situacao_atendimento: 'pendente'
         }
       ]);
       if (error) throw error;

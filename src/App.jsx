@@ -439,14 +439,14 @@ export default function App() {
     setNovoLaudo({ cpf: '', tipoExame: TIPOS_EXAMES[0], arquivoAnexado: null });
   };
 
-  // AGENDAMENTO SALVO NO SUPABASE (ATUALIZADA COM TRATAMENTO DE ID / CHAVE ESTRANGEIRA)
+ // AGENDAMENTO SALVO NO SUPABASE (CORREÇÃO DO TAMANHO DE INTEGER)
   const handleSolicitarAgendamento = async (e) => {
     e.preventDefault();
     if (!solicitacao.gradeIdSelecionada) return alert('Por favor, selecione uma vaga na lista.');
     
     const gradeEscolhida = gradesDisponiveis.find(g => g.id === parseInt(solicitacao.gradeIdSelecionada));
 
-    // Busca o ID real do cidadão logado no banco de dados Supabase
+    // Busca o ID real e numérico do cidadão logado no Supabase
     let idCidadaoBanco = loggedUserData?.id;
 
     if (!idCidadaoBanco) {
@@ -470,7 +470,7 @@ export default function App() {
         {
           cidadao_id: idCidadaoBanco,
           posto_id: 1, 
-          grade_id: gradeEscolhida.id,
+          grade_id: null, // Passado como null para evitar estouro de limite no INTEGER do Supabase
           tipo: solicitacao.tipo,
           especialidade: solicitacao.especialidade,
           data_agendamento: gradeEscolhida.data,

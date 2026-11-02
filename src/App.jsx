@@ -146,6 +146,7 @@ export default function App() {
       const { data } = await supabase.from('cidadaos').select('*');
       if (data) {
         const mapeados = data.map(c => ({
+          id: c.id,
           nome: c.nome,
           cpf: c.cpf,
           cartaoSus: c.cartao_sus || c.cartaoSus,
@@ -161,6 +162,7 @@ export default function App() {
     }
   }
 
+  // BUSCA DE AGENDAMENTOS DO SUPABASE (ATUALIZADA COM COMPATIBILIDADE DE COLUNAS)
   async function fetchAgendamentosSupabase() {
     try {
       const { data } = await supabase.from('agendamentos').select('*');
@@ -171,10 +173,10 @@ export default function App() {
           cpf: loggedUserData?.cpf || '',
           cartaoSus: loggedUserData?.cartaoSus || '',
           tipo: a.tipo || 'Consulta',
-          especialidade: a.especialidade,
+          especialidade: a.especialidade || a.exame_especialidade,
           posto: UNIDADES_SAUDE[0],
-          data: a.data_agendamento,
-          horario: a.horario || '08:00',
+          data: a.data_agendamento || a.data,
+          horario: a.horario || a.hora || '08:00',
           status: a.status || 'Pendente',
           motivoRecusado: a.motivo_recusado || '',
           confirmacaoCidadao: a.confirmacao_cidadao || 'pendente',
@@ -437,18 +439,37 @@ export default function App() {
     setNovoLaudo({ cpf: '', tipoExame: TIPOS_EXAMES[0], arquivoAnexado: null });
   };
 
- // AGENDAMENTO SALVO NO SUPABASE (MAPEAMENTO EXATO DAS COLUNAS)
+  // AGENDAMENTO SALVO NO SUPABASE (ATUALIZADA COM TRATAMENTO DE ID / CHAVE ESTRANGEIRA)
   const handleSolicitarAgendamento = async (e) => {
     e.preventDefault();
     if (!solicitacao.gradeIdSelecionada) return alert('Por favor, selecione uma vaga na lista.');
     
     const gradeEscolhida = gradesDisponiveis.find(g => g.id === parseInt(solicitacao.gradeIdSelecionada));
 
+    // Busca o ID real do cidadão logado no banco de dados Supabase
+    let idCidadaoBanco = loggedUserData?.id;
+
+    if (!idCidadaoBanco) {
+      const { data: cidadaoBanco } = await supabase
+        .from('cidadaos')
+        .select('id')
+        .eq('cpf', loggedUserData.cpf)
+        .maybeSingle();
+
+      if (cidadaoBanco) {
+        idCidadaoBanco = cidadaoBanco.id;
+      }
+    }
+
+    if (!idCidadaoBanco) {
+      return alert('ERRO: Cidadão não encontrado no banco de dados. Faça o cadastro primeiro.');
+    }
+
     try {
       const { error } = await supabase.from('agendamentos').insert([
         {
-          cidadao_id: loggedUserData.id || 1, // Usa o ID do cidadão logado no Supabase
-          posto_id: 1, // ID do posto selecionado
+          cidadao_id: idCidadaoBanco,
+          posto_id: 1, 
           grade_id: gradeEscolhida.id,
           tipo: solicitacao.tipo,
           especialidade: solicitacao.especialidade,

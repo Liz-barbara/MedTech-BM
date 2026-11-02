@@ -224,27 +224,29 @@ export default function App() {
     setCurrentTab('solicitar');
   };
 
-  const handleRegisterCitizen = async (e) => {
+ const handleRegisterCitizen = async (e) => {
     e.preventDefault();
-    if (!formCitizen.lgpdAceite) return alert('Aceite a LGPD para continuar.');
+    if (!formCitizen.lgpdAceite) return alert('Aceite os termos para continuar.');
     
     try {
-      const { error } = await supabase.from('cidadaos').insert([
+      const { data, error } = await supabase.from('cidadaos').insert([
         { 
           nome: formCitizen.nome, 
           cpf: formCitizen.cpf, 
           cartao_sus: formCitizen.cartaoSus, 
           telefone: formCitizen.telefone, 
-          email: formCitizen.email || `${formCitizen.cpf}@medtech.bm`
+          email: formCitizen.email || `${formCitizen.cpf}@medtech.bm`,
+          senha_hash: formCitizen.senha || '123456' // Envia a senha preenchida para a coluna senha_hash
         }
-      ]);
+      ]).select().single();
+
       if (error) throw error;
       
       await fetchCidadaosSupabase();
-      alert('Cadastro efetuado com sucesso no banco de dados! Efetue o login.');
+      alert('Cadastro realizado com sucesso! Faça login.');
       setAuthMode('login');
     } catch (err) {
-      alert('Erro ao salvar no banco Supabase: ' + err.message);
+      alert('Erro ao cadastrar cidadão: ' + err.message);
     }
   };
 
